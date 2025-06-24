@@ -1,3 +1,4 @@
+
 import { Truck } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,9 @@ export function Header() {
           </Button>
            <Button variant="ghost" asChild>
             <Link href="/repartos">Repartos</Link>
+          </Button>
+          <Button variant="ghost" asChild>
+            <Link href="/repartidores">Repartidores</Link>
           </Button>
         </nav>
       </div>

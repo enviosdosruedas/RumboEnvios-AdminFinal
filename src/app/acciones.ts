@@ -1,5 +1,7 @@
 'use server';
 
+import { PrismaClient } from '@prisma/client';
+import { withAccelerate } from '@prisma/extension-accelerate';
 import type { Orden } from '@/tipos/orden';
 
 function generarIdUnico(): string {
@@ -66,7 +68,7 @@ export async function procesarOrdenesDesdeTexto(
         const lineaEnvio = lineas[i].trim();
         if (!lineaEnvio.startsWith('-')) continue;
 
-        const regex = /^-\s*(?<horario>.+?HS)\s+(?<destino>.+?)\s*\.\s*(?:COBRAR\s+\$(?<total>\d+)\s*\.\s*)?env[ií]o\s+\$(?<montoEnvio>\d+)(?:\s*\((?<notas>.*)\))?$/i;
+        const regex = /^-\s*(?<horario>.+?hs)\s+(?<destino>.+?)\s*\.\s*(?:cobrar\s+\$(?<total>\d+)\s*\.\s*)?env[ií]o\s+\$(?<montoEnvio>\d+)(?:\s*\((?<notas>.*)\))?$/i;
         
         const match = lineaEnvio.match(regex);
 
@@ -100,5 +102,27 @@ export async function procesarOrdenesDesdeTexto(
     console.error("Error al procesar órdenes:", error);
     const errorMessage = error instanceof Error ? error.message : "Error desconocido";
     return { exito: false, error: `Hubo un problema al procesar el texto. Revisa el formato y la lógica de extracción. Detalles: ${errorMessage}` };
+  }
+}
+
+export async function guardarOrdenes(ordenes: Orden[]): Promise<{ exito: boolean; error?: string }> {
+  const prisma = new PrismaClient().$extends(withAccelerate());
+
+  if (ordenes.length === 0) {
+    return { exito: true };
+  }
+  
+  try {
+    const result = await prisma.orden.createMany({
+      data: ordenes,
+      skipDuplicates: true,
+    });
+
+    console.log(`Se guardaron ${result.count} órdenes en la base de datos.`);
+    return { exito: true };
+  } catch (error) {
+    console.error("Error al guardar órdenes en la base de datos:", error);
+    const errorMessage = error instanceof Error ? error.message : "Error desconocido al guardar en la base de datos";
+    return { exito: false, error: errorMessage };
   }
 }

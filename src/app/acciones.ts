@@ -12,6 +12,7 @@ export async function procesarOrdenesDesdeTexto(
   try {
     const ordenes: Orden[] = [];
     const direccionSufijo = ", Mar del Plata, Provincia de Buenos Aires, Argentina";
+    const fechaActual = new Date();
 
     if (!textoCrudo.trim()) {
       return { exito: true, datos: [] };
@@ -30,7 +31,7 @@ export async function procesarOrdenesDesdeTexto(
         const lineaEnvio = lineas[i].trim();
         if (!lineaEnvio.startsWith('-')) continue;
 
-        const regex = /^-\s*(?<horarioEntrega>.+?),\s*(?<direccionEntrega>.+?),\s*(?:(?:\$\s*)(?<montoACobrar>\d+)\s*,\s*)?(?:\$\s*)(?<costoEnvio>\d+)(?:\s*\((?<notas>.*)\))?$/;
+        const regex = /^-\s*(?<horarioEntrega>.+?),\s*(?<direccionEntrega>.+?),\s*(?:[a-z\s]*\$\s*(?<montoACobrar>\d+)\s*,\s*)?(?:[a-z\s]*\$\s*(?<costoEnvio>\d+))(?:\s*\((?<notas>.*)\))?$/i;
         
         const match = lineaEnvio.match(regex);
 
@@ -38,7 +39,7 @@ export async function procesarOrdenesDesdeTexto(
           const { horarioEntrega, direccionEntrega, montoACobrar, costoEnvio, notas } = match.groups;
           
           const nuevaOrden: Orden = {
-            fecha: new Date(),
+            fecha: fechaActual,
             empresa: empresa,
             direccionRetiro: direccionRetiro,
             horarioEntrega: horarioEntrega.trim(),

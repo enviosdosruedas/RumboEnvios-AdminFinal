@@ -2,6 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import type { Orden, EstadoOrden } from '@/tipos/orden';
+import type { Reparto } from '@/tipos/reparto';
 
 function generarIdUnico(): string {
   return Math.random().toString(36).substring(2, 12).toUpperCase();
@@ -135,26 +136,61 @@ export async function crearReparto({
 }: {
   repartidorId: number;
   fecha: Date;
-}): Promise<{ exito: boolean; error?: string }> {
+}): Promise<{ exito: boolean; reparto?: Reparto; error?: string }> {
   try {
     if (!repartidorId || !fecha) {
       return { exito: false, error: "Faltan datos para crear el reparto." };
     }
 
-    await prisma.reparto.create({
+    const nuevoReparto = await prisma.reparto.create({
       data: {
         fecha,
         repartidorId,
       },
     });
 
-    return { exito: true };
+    return { exito: true, reparto: nuevoReparto };
   } catch (error) {
     console.error("Error al crear el reparto:", error);
     const errorMessage =
       error instanceof Error
         ? error.message
         : "Error desconocido al crear el reparto";
+    return { exito: false, error: errorMessage };
+  }
+}
+
+export async function asignarOrdenesAReparto({
+  repartoId,
+  ordenIds,
+}: {
+  repartoId: string;
+  ordenIds: string[];
+}): Promise<{ exito: boolean; count?: number; error?: string }> {
+  try {
+    if (!repartoId || ordenIds.length === 0) {
+      return { exito: false, error: "Faltan datos para asignar las órdenes." };
+    }
+
+    const result = await prisma.orden.updateMany({
+      where: {
+        numeroOrden: {
+          in: ordenIds,
+        },
+      },
+      data: {
+        repartoId: repartoId,
+        estado: 'EN_CAMINO',
+      },
+    });
+
+    return { exito: true, count: result.count };
+  } catch (error) {
+    console.error("Error al asignar órdenes al reparto:", error);
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Error desconocido al asignar órdenes";
     return { exito: false, error: errorMessage };
   }
 }

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { crearReparto } from "@/app/acciones";
@@ -31,12 +31,15 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import type { Repartidor } from "@/tipos/repartidor";
+import type { Reparto } from "@/tipos/reparto";
 
 interface FormularioCrearRepartoProps {
   repartidores: Repartidor[];
+  onRepartoCreado: (reparto: Reparto) => void;
+  repartoActivo: Reparto | null;
 }
 
-export function FormularioCrearReparto({ repartidores }: FormularioCrearRepartoProps) {
+export function FormularioCrearReparto({ repartidores, onRepartoCreado, repartoActivo }: FormularioCrearRepartoProps) {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
@@ -59,13 +62,13 @@ export function FormularioCrearReparto({ repartidores }: FormularioCrearRepartoP
         fecha,
       });
 
-      if (result.exito) {
+      if (result.exito && result.reparto) {
+        const repartidor = repartidores.find(r => r.id === Number(repartidorId));
         toast({
-          title: "¡Éxito!",
-          description: "El reparto ha sido creado correctamente.",
+          title: "¡Reparto Creado!",
+          description: `Reparto para ${repartidor?.nombre} en la fecha ${format(fecha, "PPP", { locale: es })}.`,
         });
-        setRepartidorId("");
-        setFecha(undefined);
+        onRepartoCreado(result.reparto);
       } else {
         toast({
           title: "Error al crear reparto",
@@ -79,9 +82,9 @@ export function FormularioCrearReparto({ repartidores }: FormularioCrearRepartoP
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Crear Nuevo Reparto</CardTitle>
+        <CardTitle>1. Crear Nuevo Reparto</CardTitle>
         <CardDescription>
-          Selecciona un repartidor, una fecha y luego las órdenes a asignar.
+          Selecciona un repartidor y una fecha para el reparto.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -91,7 +94,7 @@ export function FormularioCrearReparto({ repartidores }: FormularioCrearRepartoP
             <Select
               onValueChange={setRepartidorId}
               value={repartidorId}
-              disabled={isPending}
+              disabled={isPending || !!repartoActivo}
             >
               <SelectTrigger id="repartidor">
                 <SelectValue placeholder="Selecciona un repartidor" />
@@ -120,7 +123,7 @@ export function FormularioCrearReparto({ repartidores }: FormularioCrearRepartoP
                     "w-full justify-start text-left font-normal",
                     !fecha && "text-muted-foreground"
                   )}
-                  disabled={isPending}
+                  disabled={isPending || !!repartoActivo}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {fecha ? (
@@ -141,17 +144,21 @@ export function FormularioCrearReparto({ repartidores }: FormularioCrearRepartoP
               </PopoverContent>
             </Popover>
           </div>
+          
+          {repartoActivo ? (
+            <div className="flex items-center justify-center p-4 bg-green-50 text-green-800 rounded-md border border-green-200">
+              <CheckCircle className="h-5 w-5 mr-2" />
+              <span className="font-medium">Reparto creado. Ahora asigna las órdenes.</span>
+            </div>
+          ) : (
+             <Button
+                onClick={handleSubmit}
+                disabled={!repartidorId || !fecha || isPending || !!repartoActivo}
+              >
+                {isPending ? "Creando..." : "Crear Reparto"}
+              </Button>
+          )}
 
-          <p className="text-sm text-muted-foreground">
-            A continuación, selecciona las órdenes de la tabla de la derecha.
-          </p>
-
-          <Button
-            onClick={handleSubmit}
-            disabled={!repartidorId || !fecha || isPending}
-          >
-            {isPending ? "Creando..." : "Crear Reparto"}
-          </Button>
         </div>
       </CardContent>
     </Card>

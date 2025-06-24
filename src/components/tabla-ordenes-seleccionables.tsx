@@ -17,9 +17,10 @@ import { Checkbox } from "@/components/ui/checkbox"
 
 interface TablaOrdenesSeleccionablesProps {
   ordenes: Orden[];
+  onSelectionChange: (ordenes: Orden[]) => void;
 }
 
-export function TablaOrdenesSeleccionables({ ordenes }: TablaOrdenesSeleccionablesProps) {
+export function TablaOrdenesSeleccionables({ ordenes, onSelectionChange }: TablaOrdenesSeleccionablesProps) {
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
 
   const columns = React.useMemo<ColumnDef<Orden>[]>(() => [
@@ -68,13 +69,21 @@ export function TablaOrdenesSeleccionables({ ordenes }: TablaOrdenesSeleccionabl
       onRowSelectionChange: setRowSelection,
       getCoreRowModel: getCoreRowModel(),
   });
+  
+  React.useEffect(() => {
+    const selectedOrdenes = table.getFilteredSelectedRowModel().rows.map(
+      (row) => row.original
+    );
+    onSelectionChange(selectedOrdenes);
+  }, [rowSelection, table, onSelectionChange]);
+
 
   return (
       <Card>
           <CardHeader>
-              <CardTitle>Órdenes Pendientes</CardTitle>
+              <CardTitle>2. Seleccionar Órdenes</CardTitle>
               <CardDescription>
-              Selecciona las órdenes para incluir en el nuevo reparto.
+              Selecciona las órdenes pendientes para incluir en el reparto.
               </CardDescription>
           </CardHeader>
           <CardContent>

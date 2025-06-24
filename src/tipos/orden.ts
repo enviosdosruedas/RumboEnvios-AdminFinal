@@ -13,4 +13,5 @@ export interface Orden {
   montoEnvio: number;
   aclaraciones: string;
   estado: EstadoOrden;
+  repartoId?: string | null;
 }

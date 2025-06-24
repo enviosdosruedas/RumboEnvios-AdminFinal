@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Calendar, User, Package } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Calendar, User, Package, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import type { RepartoExtendido } from "@/tipos/reparto";
@@ -25,12 +26,8 @@ export function ListaRepartos({ repartos }: ListaRepartosProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       {repartos.map((reparto) => (
-        <Link 
-          href={`/repartos/${reparto.id}`} 
-          key={reparto.id}
-          className="block hover:shadow-lg transition-shadow duration-200 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <Card className="h-full">
+        <Card key={reparto.id} className="flex flex-col justify-between hover:shadow-lg transition-shadow duration-200">
+          <div>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Calendar className="h-5 w-5 text-primary" />
@@ -50,8 +47,16 @@ export function ListaRepartos({ repartos }: ListaRepartosProps) {
                 <span>{reparto._count.ordenes}</span>
               </div>
             </CardContent>
-          </Card>
-        </Link>
+          </div>
+          <CardFooter className="pt-4">
+            <Button asChild className="w-full">
+              <Link href={`/repartos/${reparto.id}`}>
+                Ver Detalle
+                <ArrowRight />
+              </Link>
+            </Button>
+          </CardFooter>
+        </Card>
       ))}
     </div>
   );

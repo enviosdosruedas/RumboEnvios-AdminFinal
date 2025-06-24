@@ -59,7 +59,7 @@ export function GestionRepartos({ repartidores, ordenesPendientes }: GestionRepa
       } else {
         toast({ 
           title: 'Error al asignar', 
-          description: result.error, 
+          description: result.mensaje, 
           variant: 'destructive' 
         });
       }

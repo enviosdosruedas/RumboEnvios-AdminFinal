@@ -72,7 +72,7 @@ export function FormularioCrearReparto({ repartidores, onRepartoCreado, repartoA
       } else {
         toast({
           title: "Error al crear reparto",
-          description: result.error,
+          description: result.mensaje,
           variant: "destructive",
         });
       }

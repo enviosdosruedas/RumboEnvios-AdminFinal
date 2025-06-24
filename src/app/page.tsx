@@ -23,7 +23,7 @@ export default function Home() {
         setOrdenes([]);
         toast({
           title: "Error al procesar",
-          description: respuesta.error,
+          description: respuesta.mensaje,
           variant: "destructive",
         });
         return;
@@ -59,7 +59,7 @@ export default function Home() {
       } else {
         toast({
           title: "Error al Guardar",
-          description: respuesta.error,
+          description: respuesta.mensaje,
           variant: "destructive",
         });
       }

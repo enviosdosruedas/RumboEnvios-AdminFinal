@@ -1,5 +1,6 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
 import type { Orden, EstadoOrden } from '@/tipos/orden';
 import type { Reparto } from '@/tipos/reparto';
@@ -45,11 +46,15 @@ function parsearNotas(notas: string | undefined): { nombreClienteEntrega: string
 
 type ProcesarOrdenesRespuesta = 
   | { exito: true; datos: Orden[] }
-  | { exito: false; error: string };
+  | { exito: false; mensaje: string };
 
 export async function procesarOrdenesDesdeTexto(
   textoCrudo: string
 ): Promise<ProcesarOrdenesRespuesta> {
+  if (!prisma) {
+    return { exito: false, mensaje: "La conexión con la base de datos no está configurada." };
+  }
+
   try {
     const ordenes: Orden[] = [];
     const direccionSufijo = ", Mar del Plata, Provincia de Buenos Aires, Argentina";
@@ -107,17 +112,17 @@ export async function procesarOrdenesDesdeTexto(
   } catch (error) {
     console.error("Error al procesar órdenes:", error);
     const errorMessage = error instanceof Error ? error.message : "Error desconocido";
-    return { exito: false, error: `Hubo un problema al procesar el texto. Revisa el formato y la lógica de extracción. Detalles: ${errorMessage}` };
+    return { exito: false, mensaje: `Hubo un problema al procesar el texto. Revisa el formato y la lógica de extracción. Detalles: ${errorMessage}` };
   }
 }
 
-export async function guardarOrdenes(ordenes: Orden[]): Promise<{ exito: boolean; error?: string }> {
+export async function guardarOrdenes(ordenes: Orden[]): Promise<{ exito: boolean; mensaje?: string }> {
   if (ordenes.length === 0) {
     return { exito: true };
   }
 
   if (!prisma) {
-    return { exito: false, error: "La conexión con la base de datos no está configurada." };
+    return { exito: false, mensaje: "La conexión con la base de datos no está configurada." };
   }
   
   try {
@@ -130,7 +135,7 @@ export async function guardarOrdenes(ordenes: Orden[]): Promise<{ exito: boolean
   } catch (error) {
     console.error("Error al guardar órdenes en la base de datos:", error);
     const errorMessage = error instanceof Error ? error.message : "Error desconocido al guardar en la base de datos";
-    return { exito: false, error: errorMessage };
+    return { exito: false, mensaje: errorMessage };
   }
 }
 
@@ -140,14 +145,14 @@ export async function crearReparto({
 }: {
   repartidorId: number;
   fecha: Date;
-}): Promise<{ exito: boolean; reparto?: Reparto; error?: string }> {
+}): Promise<{ exito: boolean; reparto?: Reparto; mensaje?: string }> {
   if (!prisma) {
-    return { exito: false, error: "La conexión con la base de datos no está configurada." };
+    return { exito: false, mensaje: "La conexión con la base de datos no está configurada." };
   }
 
   try {
     if (!repartidorId || !fecha) {
-      return { exito: false, error: "Faltan datos para crear el reparto." };
+      return { exito: false, mensaje: "Faltan datos para crear el reparto." };
     }
 
     const nuevoReparto = await prisma.reparto.create({
@@ -164,7 +169,7 @@ export async function crearReparto({
       error instanceof Error
         ? error.message
         : "Error desconocido al crear el reparto";
-    return { exito: false, error: errorMessage };
+    return { exito: false, mensaje: errorMessage };
   }
 }
 
@@ -174,14 +179,14 @@ export async function asignarOrdenesAReparto({
 }: {
   repartoId: string;
   ordenIds: string[];
-}): Promise<{ exito: boolean; count?: number; error?: string }> {
+}): Promise<{ exito: boolean; count?: number; mensaje?: string }> {
   if (!prisma) {
-    return { exito: false, error: "La conexión con la base de datos no está configurada." };
+    return { exito: false, mensaje: "La conexión con la base de datos no está configurada." };
   }
   
   try {
     if (!repartoId || ordenIds.length === 0) {
-      return { exito: false, error: "Faltan datos para asignar las órdenes." };
+      return { exito: false, mensaje: "Faltan datos para asignar las órdenes." };
     }
 
     const result = await prisma.orden.updateMany({
@@ -203,6 +208,43 @@ export async function asignarOrdenesAReparto({
       error instanceof Error
         ? error.message
         : "Error desconocido al asignar órdenes";
-    return { exito: false, error: errorMessage };
+    return { exito: false, mensaje: errorMessage };
+  }
+}
+
+export async function crearRepartidor(nombre: string): Promise<{ exito: boolean; mensaje: string }> {
+  if (!prisma) {
+    return {
+      exito: false,
+      mensaje: "La conexión con la base de datos no está configurada.",
+    };
+  }
+
+  try {
+    if (!nombre || nombre.trim() === "") {
+      return { exito: false, mensaje: "El nombre no puede estar vacío." };
+    }
+
+    await prisma.repartidor.create({
+      data: {
+        nombre: nombre.trim(),
+      },
+    });
+
+    revalidatePath("/repartidores");
+
+    return { exito: true, mensaje: "Repartidor creado con éxito." };
+  } catch (error) {
+    console.error("Error al crear repartidor:", error);
+    
+    if (error instanceof Error && (error as any).code === 'P2002') {
+         return { exito: false, mensaje: 'Ya existe un repartidor con este nombre.' };
+    }
+
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Ocurrió un error desconocido.";
+    return { exito: false, mensaje: `No se pudo crear el repartidor: ${errorMessage}` };
   }
 }

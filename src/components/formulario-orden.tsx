@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -15,12 +15,15 @@ import { procesarOrdenesDesdeTexto } from "@/app/acciones";
 import type { Orden } from "@/tipos/orden";
 
 export function FormularioOrden() {
+  const [isPending, startTransition] = useTransition();
   const [textoOrdenes, setTextoOrdenes] = useState("");
   const [ordenes, setOrdenes] = useState<Orden[]>([]);
 
-  const procesarOrdenes = async () => {
-    const nuevasOrdenes = await procesarOrdenesDesdeTexto(textoOrdenes);
-    setOrdenes(nuevasOrdenes);
+  const procesarOrdenes = () => {
+    startTransition(async () => {
+      const nuevasOrdenes = await procesarOrdenesDesdeTexto(textoOrdenes);
+      setOrdenes(nuevasOrdenes);
+    });
   };
 
   return (
@@ -30,8 +33,11 @@ export function FormularioOrden() {
         value={textoOrdenes}
         onChange={(e) => setTextoOrdenes(e.target.value)}
         rows={10}
+        disabled={isPending}
       />
-      <Button onClick={procesarOrdenes}>Procesar Órdenes</Button>
+      <Button onClick={procesarOrdenes} disabled={isPending}>
+        {isPending ? "Procesando..." : "Procesar Órdenes"}
+      </Button>
 
       {ordenes.length > 0 && (
         <div className="mt-6 space-y-4">

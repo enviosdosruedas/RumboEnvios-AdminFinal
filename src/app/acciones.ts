@@ -180,7 +180,7 @@ export async function asignarOrdenesAReparto({
       },
       data: {
         repartoId: repartoId,
-        estado: 'EN_CAMINO',
+        estado: 'ASIGNADO',
       },
     });
 

@@ -4,6 +4,40 @@ import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
 import type { Orden, EstadoOrden } from '@/tipos/orden';
 import type { Reparto } from '@/tipos/reparto';
+import { Client } from "@googlemaps/google-maps-services-js";
+
+const mapsClient = process.env.MAPS_SERVER_API_KEY ? new Client({}) : null;
+
+async function geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
+  if (!mapsClient) {
+    console.warn("Google Maps API client not initialized. Missing MAPS_SERVER_API_KEY.");
+    return null;
+  }
+
+  try {
+    const response = await mapsClient.geocode({
+      params: {
+        address: address,
+        key: process.env.MAPS_SERVER_API_KEY!,
+      },
+    });
+
+    if (response.data.status === 'OK' && response.data.results.length > 0) {
+      const location = response.data.results[0].geometry.location;
+      return { lat: location.lat, lng: location.lng };
+    } else {
+      console.warn(`Geocoding failed for address "${address}": ${response.data.status}`);
+      if (response.data.error_message) {
+        console.error('Google Maps API error:', response.data.error_message);
+      }
+      return null;
+    }
+  } catch (error) {
+    console.error(`Error during geocoding for address "${address}":`, error);
+    return null;
+  }
+}
+
 
 function generarIdUnico(): string {
   return Math.random().toString(36).substring(2, 12).toUpperCase();
@@ -87,11 +121,14 @@ export async function procesarOrdenesDesdeTexto(
           
           const { horaDesde, horaHasta } = parsearHorario(horario);
           const { nombreClienteEntrega, aclaraciones } = parsearNotas(notas);
+
+          const direccionEntregaCompleta = destino.trim() + direccionSufijo;
+          const coordenadas = await geocodeAddress(direccionEntregaCompleta);
           
           const nuevaOrden: Orden = {
             numeroOrden: generarIdUnico(),
             nombreClienteEntrega,
-            destino: destino.trim() + direccionSufijo,
+            destino: direccionEntregaCompleta,
             fecha: fechaActual,
             horaHasta,
             nombreClienteRetiro,
@@ -101,6 +138,8 @@ export async function procesarOrdenesDesdeTexto(
             montoEnvio: Number(montoEnvio),
             aclaraciones,
             estado: 'PENDIENTE',
+            lat: coordenadas?.lat,
+            lng: coordenadas?.lng,
           };
 
           ordenes.push(nuevaOrden);

@@ -1,6 +1,6 @@
 'use client';
 
-import { ApiProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps';
 import type { Orden } from '@/tipos/orden';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 
@@ -8,7 +8,7 @@ interface MapaRepartoProps {
   ordenes: Orden[];
 }
 
-const API_KEY = process.env.NEXT_PUBLIC_MAPS_API_KEY;
+const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
 // Default center for Mar del Plata, Argentina
 const defaultCenter = { lat: -38.0055, lng: -57.5426 };
@@ -28,7 +28,7 @@ export function MapaReparto({ ordenes }: MapaRepartoProps) {
                 La clave de API de Google Maps para el cliente no está configurada.
               </p>
               <p className="text-sm text-muted-foreground">
-                Por favor, añade NEXT_PUBLIC_MAPS_API_KEY a tu archivo .env para ver el mapa.
+                Por favor, añade NEXT_PUBLIC_GOOGLE_MAPS_API_KEY a tu archivo .env para ver el mapa.
               </p>
             </div>
           </div>
@@ -45,7 +45,7 @@ export function MapaReparto({ ordenes }: MapaRepartoProps) {
 
   return (
     <div className="h-[500px] w-full mt-8 rounded-lg overflow-hidden border shadow-sm">
-      <ApiProvider apiKey={API_KEY}>
+      <APIProvider apiKey={API_KEY}>
         <Map
           mapId="e093a38411136241" // A generic mapId for basic styling
           defaultCenter={center}
@@ -61,7 +61,7 @@ export function MapaReparto({ ordenes }: MapaRepartoProps) {
             />
           ))}
         </Map>
-      </ApiProvider>
+      </APIProvider>
     </div>
   );
 }

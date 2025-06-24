@@ -1,7 +1,7 @@
 
 "use client"
 
-import * as React from "react"
+import React, { useState } from "react"
 import {
   ColumnDef,
   flexRender,
@@ -122,7 +122,7 @@ export const columns: ColumnDef<Orden>[] = [
 
 export function TablaOrdenes({ datos }: TablaOrdenesProps) {
   const isMobile = useIsMobile()
-  const [globalFilter, setGlobalFilter] = React.useState("")
+  const [globalFilter, setGlobalFilter] = useState("")
 
   const table = useReactTable({
     data: datos,

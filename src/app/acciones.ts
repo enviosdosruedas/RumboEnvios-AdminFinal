@@ -1,16 +1,19 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import type { Orden } from '@/tipos/orden';
+import type { Orden, EstadoOrden } from '@/tipos/orden';
 
 function generarIdUnico(): string {
   return Math.random().toString(36).substring(2, 12).toUpperCase();
 }
 
 function normalizarHora(horaStr: string): string {
-  let [horas, minutos] = horaStr.trim().split(/\s+/);
+  let [horas, minutos] = horaStr.trim().split(/[:\s]+/);
+  if (minutos === undefined) {
+    minutos = '00';
+  }
   horas = horas.padStart(2, '0');
-  minutos = minutos ? minutos.padEnd(2, '0').substring(0, 2) : '00';
+  minutos = minutos.padEnd(2, '0').substring(0, 2);
   return `${horas}:${minutos}:00`;
 }
 
@@ -18,9 +21,11 @@ function parsearHorario(rango: string): { horaDesde: string; horaHasta: string }
   const rangoLimpio = rango.replace(/HS/i, '').trim();
   const partes = rangoLimpio.split(/\s+A\s+/i);
   if (partes.length === 2) {
+    const horaDesde = normalizarHora(partes[0]);
+    const horaHasta = normalizarHora(partes[1]);
     return {
-      horaDesde: normalizarHora(partes[0]),
-      horaHasta: normalizarHora(partes[1]),
+      horaDesde,
+      horaHasta,
     };
   }
   const horaNormalizada = normalizarHora(rangoLimpio);
@@ -67,7 +72,7 @@ export async function procesarOrdenesDesdeTexto(
         const lineaEnvio = lineas[i].trim();
         if (!lineaEnvio.startsWith('-')) continue;
 
-        const regex = /^-\s*(?<horario>.+?hs)\s+(?<destino>.+?)\s*\.\s*(?:cobrar\s+\$(?<total>\d+)\s*\.\s*)?env[ií]o\s+\$(?<montoEnvio>\d+)(?:\s*\((?<notas>.*)\))?$/i;
+        const regex = /^-\s*(?<horario>.+?hs)\s+(?<destino>.+?)\s*\.(?:\s*cobrar\s+\$(?<total>\d+)\s*\.\s*)?\s*env[ií]o\s+\$(?<montoEnvio>\d+)(?:\s*\((?<notas>.*)\))?$/i;
         
         const match = lineaEnvio.match(regex);
 
@@ -89,6 +94,7 @@ export async function procesarOrdenesDesdeTexto(
             total: Number(total || '0'),
             montoEnvio: Number(montoEnvio),
             aclaraciones,
+            estado: 'PENDIENTE',
           };
 
           ordenes.push(nuevaOrden);

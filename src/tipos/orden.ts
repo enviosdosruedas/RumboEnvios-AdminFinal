@@ -1,3 +1,5 @@
+export type EstadoOrden = 'PENDIENTE' | 'RETIRADO' | 'EN_CAMINO' | 'COMPLETADO' | 'FALLIDO';
+
 export interface Orden {
   numeroOrden: string;
   nombreClienteEntrega: string;
@@ -10,4 +12,5 @@ export interface Orden {
   total: number;
   montoEnvio: number;
   aclaraciones: string;
+  estado: EstadoOrden;
 }

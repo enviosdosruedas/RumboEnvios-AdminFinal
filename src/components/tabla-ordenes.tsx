@@ -25,43 +25,51 @@ interface TablaOrdenesProps {
 
 export const columns: ColumnDef<Orden>[] = [
   {
+    accessorKey: "numeroOrden",
+    header: "Order Number",
+  },
+  {
+    accessorKey: "nombreClienteEntrega",
+    header: "Nombre Cliente Entrega",
+  },
+  {
+    accessorKey: "destino",
+    header: "Destino",
+  },
+  {
     accessorKey: "fecha",
-    header: "FECHA",
+    header: "Fecha",
     cell: ({ row }) => format(new Date(row.getValue("fecha")), "dd/MM/yyyy"),
   },
   {
-    accessorKey: "empresa",
-    header: "EMPRESA",
+    accessorKey: "horaDesde",
+    header: "HoraDesde",
+  },
+  {
+    accessorKey: "horaHasta",
+    header: "HoraHasta",
+  },
+  {
+    accessorKey: "nombreClienteRetiro",
+    header: "Nombre Cliente Retiro",
   },
   {
     accessorKey: "direccionRetiro",
-    header: "DIRECCION RETIRO",
+    header: "Pick up address:",
   },
   {
-    accessorKey: "horarioEntrega",
-    header: "HORARIO ENTREGA",
+    accessorKey: "total",
+    header: "Total",
+    cell: ({ row }) => `$${row.getValue("total")}`,
   },
   {
-    accessorKey: "direccionEntrega",
-    header: "DIRECCION ENTREGA",
+    accessorKey: "montoEnvio",
+    header: "MontoEnvio",
+    cell: ({ row }) => `$${row.getValue("montoEnvio")}`,
   },
   {
-    accessorKey: "costoEnvio",
-    header: "COSTO ENVIO",
-    cell: ({ row }) => `$${row.getValue("costoEnvio")}`,
-  },
-  {
-    accessorKey: "montoACobrar",
-    header: "MONTO A COBRAR",
-    cell: ({ row }) => {
-      const monto = row.getValue("montoACobrar")
-      return monto ? `$${monto}` : "-"
-    },
-  },
-  {
-    accessorKey: "notas",
-    header: "NOTAS",
-    cell: ({ row }) => row.getValue("notas") || "-",
+    accessorKey: "aclaraciones",
+    header: "Aclaraciones",
   },
 ]
 
@@ -101,7 +109,7 @@ export function TablaOrdenes({ datos }: TablaOrdenesProps) {
                 data-state={row.getIsSelected() && "selected"}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell key={cell.id} className="text-xs">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}

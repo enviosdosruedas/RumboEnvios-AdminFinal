@@ -1,10 +1,13 @@
-export type Orden = {
+export interface Orden {
+  numeroOrden: string;
+  nombreClienteEntrega: string;
+  destino: string;
   fecha: Date;
-  empresa: string;
+  horaHasta: string;
+  nombreClienteRetiro: string;
   direccionRetiro: string;
-  horarioEntrega: string;
-  direccionEntrega: string;
-  montoACobrar?: number;
-  costoEnvio: number;
-  notas?: string;
-};
+  horaDesde: string;
+  total: number;
+  montoEnvio: number;
+  aclaraciones: string;
+}

@@ -2,6 +2,40 @@
 
 import type { Orden } from '@/tipos/orden';
 
+function generarIdUnico(): string {
+  return Math.random().toString(36).substring(2, 12).toUpperCase();
+}
+
+function normalizarHora(horaStr: string): string {
+  let [horas, minutos] = horaStr.trim().split(/\s+/);
+  horas = horas.padStart(2, '0');
+  minutos = minutos ? minutos.padEnd(2, '0').substring(0, 2) : '00';
+  return `${horas}:${minutos}:00`;
+}
+
+function parsearHorario(rango: string): { horaDesde: string; horaHasta: string } {
+  const rangoLimpio = rango.replace(/HS/i, '').trim();
+  const partes = rangoLimpio.split(/\s+A\s+/i);
+  if (partes.length === 2) {
+    return {
+      horaDesde: normalizarHora(partes[0]),
+      horaHasta: normalizarHora(partes[1]),
+    };
+  }
+  const horaNormalizada = normalizarHora(rangoLimpio);
+  return { horaDesde: horaNormalizada, horaHasta: horaNormalizada };
+}
+
+function parsearNotas(notas: string | undefined): { nombreClienteEntrega: string; aclaraciones: string } {
+  if (!notas) {
+    return { nombreClienteEntrega: "A coordinar", aclaraciones: "" };
+  }
+  const partes = notas.split(/,\s*/);
+  const nombreClienteEntrega = partes[0].trim() || "A coordinar";
+  const aclaraciones = partes.slice(1).join(', ').trim();
+  return { nombreClienteEntrega, aclaraciones };
+}
+
 type ProcesarOrdenesRespuesta = 
   | { exito: true; datos: Orden[] }
   | { exito: false; error: string };
@@ -24,36 +58,36 @@ export async function procesarOrdenesDesdeTexto(
       const lineas = bloque.trim().split('\n');
       if (lineas.length < 2) continue;
 
-      const empresa = lineas[0].trim();
-      const direccionRetiro = lineas[1].trim() + direccionSufijo;
+      const nombreClienteRetiro = lineas[0].trim();
+      const direccionRetiroCruda = lineas[1].replace(/RETIRA EN/i, '').trim();
+      const direccionRetiro = direccionRetiroCruda + direccionSufijo;
 
       for (let i = 2; i < lineas.length; i++) {
         const lineaEnvio = lineas[i].trim();
         if (!lineaEnvio.startsWith('-')) continue;
 
-        const regex = /^-\s*(?<horarioEntrega>.+?),\s*(?<direccionEntrega>.+?),\s*(?:[a-z\s]*\$\s*(?<montoACobrar>\d+)\s*,\s*)?(?:[a-z\s]*\$\s*(?<costoEnvio>\d+))(?:\s*\((?<notas>.*)\))?$/i;
+        const regex = /^-\s*(?<horario>.+?)\s+(?<destino>.+?)\.\s+env[ií]o\s+\$(?<montoEnvio>\d+)(?:\s*\((?<notas>.*)\))?$/i;
         
         const match = lineaEnvio.match(regex);
-
         if (match && match.groups) {
-          const { horarioEntrega, direccionEntrega, montoACobrar, costoEnvio, notas } = match.groups;
+          const { horario, destino, montoEnvio, notas } = match.groups;
+          
+          const { horaDesde, horaHasta } = parsearHorario(horario);
+          const { nombreClienteEntrega, aclaraciones } = parsearNotas(notas);
           
           const nuevaOrden: Orden = {
+            numeroOrden: generarIdUnico(),
+            nombreClienteEntrega,
+            destino: destino.trim() + direccionSufijo,
             fecha: fechaActual,
-            empresa: empresa,
-            direccionRetiro: direccionRetiro,
-            horarioEntrega: horarioEntrega.trim(),
-            direccionEntrega: direccionEntrega.trim() + direccionSufijo,
-            costoEnvio: Number(costoEnvio),
+            horaHasta,
+            nombreClienteRetiro,
+            direccionRetiro,
+            horaDesde,
+            total: 0, // El campo 'total' no se encuentra en el texto de ejemplo, se asume 0.
+            montoEnvio: Number(montoEnvio),
+            aclaraciones,
           };
-
-          if (montoACobrar) {
-            nuevaOrden.montoACobrar = Number(montoACobrar);
-          }
-
-          if (notas) {
-            nuevaOrden.notas = notas.trim();
-          }
 
           ordenes.push(nuevaOrden);
         }
@@ -63,6 +97,7 @@ export async function procesarOrdenesDesdeTexto(
     return { exito: true, datos: ordenes };
   } catch (error) {
     console.error("Error al procesar órdenes:", error);
-    return { exito: false, error: "Hubo un problema al procesar el texto. Revisa el formato." };
+    const errorMessage = error instanceof Error ? error.message : "Error desconocido";
+    return { exito: false, error: `Hubo un problema al procesar el texto. Revisa el formato y la lógica de extracción. Detalles: ${errorMessage}` };
   }
 }

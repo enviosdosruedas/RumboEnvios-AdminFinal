@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "prisma generate --accelerate && next dev",
+    "dev": "prisma generate --accelerate && next dev --turbopack -p 9003",
     "genkit:dev": "genkit start -- bun src/ai/dev.ts",
     "genkit:watch": "genkit start -- bun --watch src/ai/dev.ts",
     "build": "prisma generate --accelerate && next build",

@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { format } from 'date-fns';
@@ -8,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { TablaOrdenes } from '@/components/tabla-ordenes';
+import { MapaReparto } from '@/components/mapa-reparto';
 
 interface DetalleRepartoPageProps {
   params: {
@@ -60,7 +62,7 @@ export default async function DetalleRepartoPage({ params }: DetalleRepartoPageP
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>Información General</CardTitle>
-          <CardDescription>Resumen del reparto #{reparto.id}</CardDescription>
+          <CardDescription>Resumen del reparto #{reparto.id.substring(0,8)}...</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-2 gap-4 text-sm">
@@ -77,6 +79,8 @@ export default async function DetalleRepartoPage({ params }: DetalleRepartoPageP
           </div>
         </CardContent>
       </Card>
+      
+      {reparto.ordenes.length > 0 && <MapaReparto ordenes={reparto.ordenes} />}
 
       <Separator className="my-8" />
 

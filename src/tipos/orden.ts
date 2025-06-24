@@ -1,4 +1,4 @@
-export type EstadoOrden = 'PENDIENTE' | 'RETIRADO' | 'EN_CAMINO' | 'COMPLETADO' | 'FALLIDO';
+export type EstadoOrden = 'PENDIENTE' | 'ASIGNADO' | 'RETIRADO' | 'EN_CAMINO' | 'COMPLETADO' | 'FALLIDO';
 
 export interface Orden {
   numeroOrden: string;

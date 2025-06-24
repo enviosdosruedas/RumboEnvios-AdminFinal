@@ -1,38 +1,39 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Orden {
-  id                   String      @id @default(cuid())
-  numeroOrden          String      @unique
+  numeroOrden         String      @id
   nombreClienteEntrega String
-  destino              String
-  fecha                DateTime
-  horaHasta            String
-  nombreClienteRetiro  String
-  direccionRetiro      String
-  horaDesde            String
-  total                Float
-  montoEnvio           Float
-  aclaraciones         String
-  estado               EstadoOrden @default(PENDIENTE)
-  createdAt            DateTime    @default(now())
-  updatedAt            DateTime    @updatedAt
-  repartoId            String?
-  reparto              Reparto?    @relation(fields: [repartoId], references: [id])
+  destino             String
+  fecha               DateTime
+  horaHasta           String
+  nombreClienteRetiro String
+  direccionRetiro     String
+  horaDesde           String
+  total               Float
+  montoEnvio          Float
+  aclaraciones        String
+  estado              EstadoOrden @default(PENDIENTE)
+  repartoId           String?
+  reparto             Reparto?    @relation(fields: [repartoId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Repartidor {
-  id       Int      @id @default(autoincrement())
-  nombre   String
-  repartos Reparto[]
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  repartos  Reparto[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Reparto {
@@ -41,10 +42,13 @@ model Reparto {
   repartidorId Int
   repartidor   Repartidor @relation(fields: [repartidorId], references: [id])
   ordenes      Orden[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 enum EstadoOrden {
   PENDIENTE
+  ASIGNADO
   RETIRADO
   EN_CAMINO
   COMPLETADO

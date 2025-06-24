@@ -1,38 +1,37 @@
-generator client {
-  provider = "prisma-client-js"
+datasource db {
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
-datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["accelerate"]
 }
 
 model Orden {
-  numeroOrden         String      @id
+  numeroOrden          String      @id @unique
   nombreClienteEntrega String
-  destino             String
-  fecha               DateTime
-  horaHasta           String
-  nombreClienteRetiro String
-  direccionRetiro     String
-  horaDesde           String
-  total               Float
-  montoEnvio          Float
-  aclaraciones        String
-  estado              EstadoOrden @default(PENDIENTE)
-  repartoId           String?
-  reparto             Reparto?    @relation(fields: [repartoId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  destino              String
+  fecha                DateTime
+  horaHasta            String
+  nombreClienteRetiro  String
+  direccionRetiro      String
+  horaDesde            String
+  total                Float
+  montoEnvio           Float
+  aclaraciones         String
+  estado               EstadoOrden
+  repartoId            String?
+  reparto              Reparto?    @relation(fields: [repartoId], references: [id])
+  lat                  Float?
+  lng                  Float?
 }
 
 model Repartidor {
-  id        Int      @id @default(autoincrement())
-  nombre    String
-  repartos  Reparto[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id       Int      @id @default(autoincrement())
+  nombre   String   @unique
+  repartos Reparto[]
 }
 
 model Reparto {
@@ -41,8 +40,6 @@ model Reparto {
   repartidorId Int
   repartidor   Repartidor @relation(fields: [repartidorId], references: [id])
   ordenes      Orden[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
 }
 
 enum EstadoOrden {

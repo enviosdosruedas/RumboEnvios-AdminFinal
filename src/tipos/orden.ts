@@ -14,4 +14,6 @@ export interface Orden {
   aclaraciones: string;
   estado: EstadoOrden;
   repartoId?: string | null;
+  lat?: number;
+  lng?: number;
 }

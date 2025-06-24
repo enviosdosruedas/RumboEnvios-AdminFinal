@@ -1,10 +1,7 @@
 import prisma from '@/lib/prisma';
 import type { Repartidor } from '@/tipos/repartidor';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { FormularioNuevoRepartidor } from '@/components/formulario-nuevo-repartidor';
-
-// Futuro componente a crear
-// import { TablaRepartidores } from '@/components/tabla-repartidores';
+import { TablaRepartidores } from '@/components/tabla-repartidores';
 
 export default async function RepartidoresPage() {
   let repartidores: Repartidor[] = [];
@@ -35,18 +32,7 @@ export default async function RepartidoresPage() {
             <FormularioNuevoRepartidor />
         </div>
         <div className="lg:col-span-3">
-             {/* Marcador de posición para el componente de tabla */}
-             <Card>
-                <CardHeader>
-                    <CardTitle>Lista de Repartidores</CardTitle>
-                    <CardDescription>
-                        Estos son los repartidores activos en el sistema.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                   <p className="text-sm text-muted-foreground">La tabla con la lista de repartidores ({repartidores.length} encontrados) se implementará aquí.</p>
-                </CardContent>
-            </Card>
+             <TablaRepartidores data={repartidores} />
         </div>
       </div>
     </div>

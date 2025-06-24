@@ -14,7 +14,7 @@ export function ListaRepartos({ repartos }: ListaRepartosProps) {
       <div className="flex items-center justify-center h-full min-h-[200px] rounded-lg border border-dashed shadow-sm bg-card p-4">
         <div className="text-center">
           <p className="mt-2 text-base text-muted-foreground">
-            No hay repartos creados todavía.
+            No hay repartos creados o no se pudo conectar a la base de datos.
           </p>
         </div>
       </div>

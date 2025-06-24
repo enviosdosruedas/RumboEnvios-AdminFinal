@@ -3,12 +3,16 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { procesarOrdenesDesdeTexto } from "@/app/acciones";
+import type { Orden } from "@/tipos/orden";
 
 export function FormularioOrden() {
   const [textoOrdenes, setTextoOrdenes] = useState("");
+  const [ordenes, setOrdenes] = useState<Orden[]>([]);
 
-  const procesarOrdenes = () => {
-    // Lógica para procesar las órdenes
+  const procesarOrdenes = async () => {
+    const nuevasOrdenes = await procesarOrdenesDesdeTexto(textoOrdenes);
+    setOrdenes(nuevasOrdenes);
   };
 
   return (

@@ -115,6 +115,10 @@ export async function guardarOrdenes(ordenes: Orden[]): Promise<{ exito: boolean
   if (ordenes.length === 0) {
     return { exito: true };
   }
+
+  if (!prisma) {
+    return { exito: false, error: "La conexión con la base de datos no está configurada." };
+  }
   
   try {
     const result = await prisma.orden.createMany({
@@ -137,6 +141,10 @@ export async function crearReparto({
   repartidorId: number;
   fecha: Date;
 }): Promise<{ exito: boolean; reparto?: Reparto; error?: string }> {
+  if (!prisma) {
+    return { exito: false, error: "La conexión con la base de datos no está configurada." };
+  }
+
   try {
     if (!repartidorId || !fecha) {
       return { exito: false, error: "Faltan datos para crear el reparto." };
@@ -167,6 +175,10 @@ export async function asignarOrdenesAReparto({
   repartoId: string;
   ordenIds: string[];
 }): Promise<{ exito: boolean; count?: number; error?: string }> {
+  if (!prisma) {
+    return { exito: false, error: "La conexión con la base de datos no está configurada." };
+  }
+  
   try {
     if (!repartoId || ordenIds.length === 0) {
       return { exito: false, error: "Faltan datos para asignar las órdenes." };

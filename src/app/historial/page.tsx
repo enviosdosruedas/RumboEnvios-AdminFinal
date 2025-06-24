@@ -5,15 +5,17 @@ import type { Orden } from "@/tipos/orden";
 export default async function HistorialPage() {
   let ordenes: Orden[] = [];
 
-  try {
-    ordenes = await prisma.orden.findMany({
-      orderBy: {
-        fecha: 'desc',
-      },
-    });
-  } catch (error) {
-    console.error("Error al obtener el historial de órdenes:", error);
-    // No hacer nada, la página se renderizará con la tabla vacía.
+  if (prisma) {
+    try {
+      ordenes = await prisma.orden.findMany({
+        orderBy: {
+          fecha: 'desc',
+        },
+      });
+    } catch (error) {
+      console.error("Error al obtener el historial de órdenes:", error);
+      // La página se renderizará con la tabla vacía.
+    }
   }
 
   return (

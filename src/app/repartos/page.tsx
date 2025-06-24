@@ -11,29 +11,31 @@ export default async function RepartosPage() {
   let ordenesPendientes: Orden[] = [];
   let repartosActuales: RepartoExtendido[] = [];
 
-  try {
-    repartidores = await prisma.repartidor.findMany();
-    ordenesPendientes = await prisma.orden.findMany({
-      where: { estado: 'PENDIENTE', repartoId: null },
-      orderBy: { fecha: 'asc' },
-    });
-    repartosActuales = (await prisma.reparto.findMany({
-      include: {
-        repartidor: true,
-        _count: {
-          select: { ordenes: true },
+  if (prisma) {
+    try {
+      repartidores = await prisma.repartidor.findMany();
+      ordenesPendientes = await prisma.orden.findMany({
+        where: { estado: 'PENDIENTE', repartoId: null },
+        orderBy: { fecha: 'asc' },
+      });
+      repartosActuales = (await prisma.reparto.findMany({
+        include: {
+          repartidor: true,
+          _count: {
+            select: { ordenes: true },
+          },
         },
-      },
-      orderBy: {
-        fecha: 'desc',
-      },
-    })) as RepartoExtendido[];
-  } catch (error) {
-    console.error(
-      'Error al obtener los datos para la página de repartos:',
-      error
-    );
-    // La página se renderizará con los arrays vacíos.
+        orderBy: {
+          fecha: 'desc',
+        },
+      })) as RepartoExtendido[];
+    } catch (error) {
+      console.error(
+        'Error al obtener los datos para la página de repartos:',
+        error
+      );
+      // La página se renderizará con los arrays vacíos.
+    }
   }
 
   return (

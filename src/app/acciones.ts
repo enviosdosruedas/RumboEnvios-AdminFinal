@@ -66,11 +66,12 @@ export async function procesarOrdenesDesdeTexto(
         const lineaEnvio = lineas[i].trim();
         if (!lineaEnvio.startsWith('-')) continue;
 
-        const regex = /^-\s*(?<horario>.+?)\s+(?<destino>.+?)\.\s+env[ií]o\s+\$(?<montoEnvio>\d+)(?:\s*\((?<notas>.*)\))?$/i;
+        const regex = /^-\s*(?<horario>.+?HS)\s+(?<destino>.+?)\s*\.\s*(?:COBRAR\s+\$(?<total>\d+)\s*\.\s*)?env[ií]o\s+\$(?<montoEnvio>\d+)(?:\s*\((?<notas>.*)\))?$/i;
         
         const match = lineaEnvio.match(regex);
+
         if (match && match.groups) {
-          const { horario, destino, montoEnvio, notas } = match.groups;
+          const { horario, destino, total, montoEnvio, notas } = match.groups;
           
           const { horaDesde, horaHasta } = parsearHorario(horario);
           const { nombreClienteEntrega, aclaraciones } = parsearNotas(notas);
@@ -84,7 +85,7 @@ export async function procesarOrdenesDesdeTexto(
             nombreClienteRetiro,
             direccionRetiro,
             horaDesde,
-            total: 0, // El campo 'total' no se encuentra en el texto de ejemplo, se asume 0.
+            total: Number(total || '0'),
             montoEnvio: Number(montoEnvio),
             aclaraciones,
           };

@@ -11,6 +11,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 import { format } from "date-fns"
+import { ArrowRight } from "lucide-react"
 
 import {
   Table,
@@ -30,6 +31,7 @@ import type { Orden, EstadoOrden } from "@/tipos/orden"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 
 interface TablaOrdenesProps {
   datos: Orden[]
@@ -66,9 +68,9 @@ export const columns: ColumnDef<Orden>[] = [
     cell: ({ row }) => {
         const numeroOrden = row.getValue("numeroOrden") as string;
         return (
-            <Link href={`/ordenes/${numeroOrden}`} className="text-primary hover:underline font-medium">
+            <div className="font-medium">
                 #{numeroOrden.substring(0, 7)}
-            </Link>
+            </div>
         )
     },
   },
@@ -126,6 +128,23 @@ export const columns: ColumnDef<Orden>[] = [
   {
     accessorKey: "aclaraciones",
     header: "Aclaraciones",
+  },
+  {
+    id: "acciones",
+    header: () => <div className="text-right">Acciones</div>,
+    cell: ({ row }) => {
+      const orden = row.original;
+      return (
+        <div className="text-right">
+          <Button asChild variant="ghost" size="icon">
+            <Link href={`/ordenes/${orden.numeroOrden}`}>
+              <ArrowRight className="h-4 w-4" />
+              <span className="sr-only">Ver Detalle</span>
+            </Link>
+          </Button>
+        </div>
+      );
+    },
   },
 ]
 

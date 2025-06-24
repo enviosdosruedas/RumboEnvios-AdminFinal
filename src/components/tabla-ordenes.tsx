@@ -1,7 +1,8 @@
 
 "use client"
 
-import React, { useState } from "react"
+import { useState } from "react"
+import Link from "next/link"
 import {
   ColumnDef,
   flexRender,
@@ -62,6 +63,14 @@ export const columns: ColumnDef<Orden>[] = [
   {
     accessorKey: "numeroOrden",
     header: "Order #",
+    cell: ({ row }) => {
+        const numeroOrden = row.getValue("numeroOrden") as string;
+        return (
+            <Link href={`/ordenes/${numeroOrden}`} className="text-primary hover:underline font-medium">
+                #{numeroOrden.substring(0, 7)}
+            </Link>
+        )
+    },
   },
   {
     accessorKey: "estado",
@@ -164,7 +173,9 @@ export function TablaOrdenes({ datos }: TablaOrdenesProps) {
                     <Badge variant={getStatusBadgeVariant(orden.estado)} className="capitalize whitespace-nowrap">
                         {formatStatusText(orden.estado)}
                     </Badge>
-                    <span className="text-xs text-muted-foreground">#{orden.numeroOrden}</span>
+                    <Link href={`/ordenes/${orden.numeroOrden}`} className="text-xs text-primary hover:underline">
+                        #{orden.numeroOrden.substring(0, 7)}
+                    </Link>
                 </div>
               </CardHeader>
               <CardContent>

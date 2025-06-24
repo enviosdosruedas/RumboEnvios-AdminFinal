@@ -114,8 +114,7 @@ export async function guardarOrdenes(ordenes: Orden[]): Promise<{ exito: boolean
   
   try {
     const result = await prisma.orden.createMany({
-      data: ordenes,
-      skipDuplicates: true,
+      data: ordenes
     });
 
     console.log(`Se guardaron ${result.count} órdenes en la base de datos.`);

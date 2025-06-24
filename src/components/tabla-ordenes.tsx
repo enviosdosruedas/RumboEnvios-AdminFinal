@@ -34,7 +34,7 @@ interface TablaOrdenesProps {
   datos: Orden[]
 }
 
-const getStatusBadgeVariant = (estado: EstadoOrden): "default" | "secondary" | "destructive" | "outline" => {
+const getStatusBadgeVariant = (estado?: EstadoOrden): "default" | "secondary" | "destructive" | "outline" => {
     switch (estado) {
         case 'PENDIENTE':
           return 'secondary';
@@ -50,7 +50,10 @@ const getStatusBadgeVariant = (estado: EstadoOrden): "default" | "secondary" | "
       }
 }
 
-const formatStatusText = (estado: EstadoOrden): string => {
+const formatStatusText = (estado?: EstadoOrden): string => {
+    if (!estado) {
+        return "desconocido";
+    }
     return estado.toLowerCase().replace('_', ' ');
 }
 
@@ -63,7 +66,7 @@ export const columns: ColumnDef<Orden>[] = [
     accessorKey: "estado",
     header: "Estado",
     cell: ({ row }) => {
-        const estado = row.getValue("estado") as EstadoOrden;
+        const estado = row.getValue("estado") as EstadoOrden | undefined;
         return (
             <Badge variant={getStatusBadgeVariant(estado)} className="capitalize whitespace-nowrap">
                 {formatStatusText(estado)}

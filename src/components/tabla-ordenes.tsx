@@ -27,7 +27,7 @@ export const columns: ColumnDef<Orden>[] = [
   {
     accessorKey: "fecha",
     header: "FECHA",
-    cell: ({ row }) => format(row.getValue("fecha"), "dd/MM/yyyy"),
+    cell: ({ row }) => format(new Date(row.getValue("fecha")), "dd/MM/yyyy"),
   },
   {
     accessorKey: "empresa",

@@ -4,6 +4,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { FormularioOrden } from "@/components/formulario-orden"
 
 export default function Home() {
   return (
@@ -13,7 +14,7 @@ export default function Home() {
           <CardTitle>Procesar Nuevas Órdenes</CardTitle>
         </CardHeader>
         <CardContent>
-          {/* El contenido para procesar órdenes irá aquí */}
+          <FormularioOrden />
         </CardContent>
       </Card>
     </main>

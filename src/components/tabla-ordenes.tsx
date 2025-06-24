@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -24,18 +25,51 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import type { Orden } from "@/tipos/orden"
+import type { Orden, EstadoOrden } from "@/tipos/orden"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 
 interface TablaOrdenesProps {
   datos: Orden[]
+}
+
+const getStatusBadgeVariant = (estado: EstadoOrden): "default" | "secondary" | "destructive" | "outline" => {
+    switch (estado) {
+        case 'PENDIENTE':
+          return 'secondary';
+        case 'RETIRADO':
+        case 'EN_CAMINO':
+          return 'default';
+        case 'COMPLETADO':
+          return 'outline';
+        case 'FALLIDO':
+          return 'destructive';
+        default:
+          return 'secondary';
+      }
+}
+
+const formatStatusText = (estado: EstadoOrden): string => {
+    return estado.toLowerCase().replace('_', ' ');
 }
 
 export const columns: ColumnDef<Orden>[] = [
   {
     accessorKey: "numeroOrden",
     header: "Order #",
+  },
+  {
+    accessorKey: "estado",
+    header: "Estado",
+    cell: ({ row }) => {
+        const estado = row.getValue("estado") as EstadoOrden;
+        return (
+            <Badge variant={getStatusBadgeVariant(estado)} className="capitalize whitespace-nowrap">
+                {formatStatusText(estado)}
+            </Badge>
+        );
+    },
   },
   {
     accessorKey: "nombreClienteEntrega",
@@ -122,7 +156,12 @@ export function TablaOrdenes({ datos }: TablaOrdenesProps) {
                 <CardTitle className="text-sm font-medium">
                   {orden.nombreClienteEntrega}
                 </CardTitle>
-                <span className="text-xs text-muted-foreground">#{orden.numeroOrden}</span>
+                <div className="flex items-center gap-2">
+                    <Badge variant={getStatusBadgeVariant(orden.estado)} className="capitalize whitespace-nowrap">
+                        {formatStatusText(orden.estado)}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">#{orden.numeroOrden}</span>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="text-lg font-bold">{orden.destino.split(',')[0]}</div>

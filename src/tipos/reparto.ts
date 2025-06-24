@@ -8,3 +8,10 @@ export interface Reparto {
   repartidor?: Repartidor;
   ordenes?: Orden[];
 }
+
+export interface RepartoExtendido extends Reparto {
+  repartidor: Repartidor;
+  _count: {
+    ordenes: number;
+  };
+}

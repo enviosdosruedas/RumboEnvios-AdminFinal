@@ -3,6 +3,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { procesarOrdenesDesdeTexto } from "@/app/acciones";
 import type { Orden } from "@/tipos/orden";
 
@@ -24,6 +32,47 @@ export function FormularioOrden() {
         rows={10}
       />
       <Button onClick={procesarOrdenes}>Procesar Órdenes</Button>
+
+      {ordenes.length > 0 && (
+        <div className="mt-6 space-y-4">
+          <h2 className="text-xl font-semibold tracking-tight">
+            Órdenes Procesadas
+          </h2>
+          {ordenes.map((orden, index) => (
+            <Card key={index} className="w-full">
+              <CardHeader>
+                <CardTitle>{orden.empresa}</CardTitle>
+                <CardDescription>
+                  Horario de entrega: {orden.horarioEntrega}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-2">
+                <p>
+                  <span className="font-semibold">Dirección de entrega: </span>
+                  {orden.direccionEntrega}
+                </p>
+                {orden.montoACobrar && (
+                  <p>
+                    <span className="font-semibold">Monto a cobrar: </span>$
+                    {orden.montoACobrar}
+                  </p>
+                )}
+                {orden.notas && (
+                  <p>
+                    <span className="font-semibold">Notas: </span>
+                    {orden.notas}
+                  </p>
+                )}
+              </CardContent>
+              <CardFooter className="flex justify-end">
+                <p className="text-lg font-bold">
+                  Costo del envío: ${orden.costoEnvio}
+                </p>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

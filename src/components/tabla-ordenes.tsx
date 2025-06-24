@@ -38,6 +38,7 @@ const getStatusBadgeVariant = (estado?: EstadoOrden): "default" | "secondary" | 
     switch (estado) {
         case 'PENDIENTE':
           return 'secondary';
+        case 'ASIGNADO':
         case 'RETIRADO':
         case 'EN_CAMINO':
           return 'default';

@@ -128,3 +128,33 @@ export async function guardarOrdenes(ordenes: Orden[]): Promise<{ exito: boolean
     return { exito: false, error: errorMessage };
   }
 }
+
+export async function crearReparto({
+  repartidorId,
+  fecha,
+}: {
+  repartidorId: number;
+  fecha: Date;
+}): Promise<{ exito: boolean; error?: string }> {
+  try {
+    if (!repartidorId || !fecha) {
+      return { exito: false, error: "Faltan datos para crear el reparto." };
+    }
+
+    await prisma.reparto.create({
+      data: {
+        fecha,
+        repartidorId,
+      },
+    });
+
+    return { exito: true };
+  } catch (error) {
+    console.error("Error al crear el reparto:", error);
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Error desconocido al crear el reparto";
+    return { exito: false, error: errorMessage };
+  }
+}

@@ -1,7 +1,7 @@
 import prisma from '@/lib/prisma';
 import type { Repartidor } from '@/tipos/repartidor';
 import type { Orden } from '@/tipos/orden';
-import { CrearRepartoForm } from '@/components/crear-reparto-form';
+import { FormularioCrearReparto } from '@/components/formulario-crear-reparto';
 import { OrdenesDisponiblesTabla } from '@/components/ordenes-disponibles-tabla';
 
 async function getRepartidores(): Promise<Repartidor[]> {
@@ -35,7 +35,7 @@ export default async function RepartosPage() {
       </h1>
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
         <div className="lg:col-span-2 w-full lg:sticky lg:top-24">
-          <CrearRepartoForm repartidores={repartidores} />
+          <FormularioCrearReparto repartidores={repartidores} />
         </div>
         <div className="lg:col-span-3 w-full">
             <OrdenesDisponiblesTabla ordenes={ordenesPendientes} />

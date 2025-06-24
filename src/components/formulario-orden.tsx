@@ -3,17 +3,10 @@
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { procesarOrdenesDesdeTexto } from "@/app/acciones";
 import type { Orden } from "@/tipos/orden";
+import { TablaOrdenes } from "./tabla-ordenes";
 
 export function FormularioOrden() {
   const [isPending, startTransition] = useTransition();
@@ -70,39 +63,7 @@ export function FormularioOrden() {
             <h2 className="text-xl font-semibold tracking-tight">
               Órdenes Procesadas
             </h2>
-            {ordenes.map((orden, index) => (
-              <Card key={index} className="w-full">
-                <CardHeader>
-                  <CardTitle>{orden.empresa}</CardTitle>
-                  <CardDescription>
-                    Horario de entrega: {orden.horarioEntrega}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="grid gap-2">
-                  <p>
-                    <span className="font-semibold">Dirección de entrega: </span>
-                    {orden.direccionEntrega}
-                  </p>
-                  {orden.montoACobrar && (
-                    <p>
-                      <span className="font-semibold">Monto a cobrar: </span>$
-                      {orden.montoACobrar}
-                    </p>
-                  )}
-                  {orden.notas && (
-                    <p>
-                      <span className="font-semibold">Notas: </span>
-                      {orden.notas}
-                    </p>
-                  )}
-                </CardContent>
-                <CardFooter className="flex justify-end">
-                  <p className="text-lg font-bold">
-                    Costo del envío: ${orden.costoEnvio}
-                  </p>
-                </CardFooter>
-              </Card>
-            ))}
+            <TablaOrdenes datos={ordenes} />
           </>
         ) : (
           <p className="pt-4 text-center text-muted-foreground">

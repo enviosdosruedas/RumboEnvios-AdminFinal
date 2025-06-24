@@ -38,6 +38,7 @@ export async function procesarOrdenesDesdeTexto(
           const { horarioEntrega, direccionEntrega, montoACobrar, costoEnvio, notas } = match.groups;
           
           const nuevaOrden: Orden = {
+            fecha: new Date(),
             empresa: empresa,
             direccionRetiro: direccionRetiro,
             horarioEntrega: horarioEntrega.trim(),

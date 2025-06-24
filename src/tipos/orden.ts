@@ -1,4 +1,5 @@
 export type Orden = {
+  fecha: Date;
   empresa: string;
   direccionRetiro: string;
   horarioEntrega: string;

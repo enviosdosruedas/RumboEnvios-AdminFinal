@@ -1,7 +1,6 @@
 'use server';
 
-import { PrismaClient } from '@prisma/client';
-import { withAccelerate } from '@prisma/extension-accelerate';
+import prisma from '@/lib/prisma';
 import type { Orden } from '@/tipos/orden';
 
 function generarIdUnico(): string {
@@ -106,8 +105,6 @@ export async function procesarOrdenesDesdeTexto(
 }
 
 export async function guardarOrdenes(ordenes: Orden[]): Promise<{ exito: boolean; error?: string }> {
-  const prisma = new PrismaClient().$extends(withAccelerate());
-
   if (ordenes.length === 0) {
     return { exito: true };
   }

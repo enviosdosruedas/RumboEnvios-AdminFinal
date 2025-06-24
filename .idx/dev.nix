@@ -9,6 +9,7 @@
     pkgs.zulu
     pkgs.bun
     pkgs.python313
+    pkgs.openssl_3_4
   ];
   # Sets environment variables in the workspace
   env = {};

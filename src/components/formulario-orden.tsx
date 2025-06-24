@@ -64,46 +64,52 @@ export function FormularioOrden() {
         {isPending ? "Procesando..." : "Procesar Órdenes"}
       </Button>
 
-      {ordenes.length > 0 && (
-        <div className="mt-6 space-y-4">
-          <h2 className="text-xl font-semibold tracking-tight">
-            Órdenes Procesadas
-          </h2>
-          {ordenes.map((orden, index) => (
-            <Card key={index} className="w-full">
-              <CardHeader>
-                <CardTitle>{orden.empresa}</CardTitle>
-                <CardDescription>
-                  Horario de entrega: {orden.horarioEntrega}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="grid gap-2">
-                <p>
-                  <span className="font-semibold">Dirección de entrega: </span>
-                  {orden.direccionEntrega}
-                </p>
-                {orden.montoACobrar && (
+      <div className="mt-6 space-y-4">
+        {ordenes.length > 0 ? (
+          <>
+            <h2 className="text-xl font-semibold tracking-tight">
+              Órdenes Procesadas
+            </h2>
+            {ordenes.map((orden, index) => (
+              <Card key={index} className="w-full">
+                <CardHeader>
+                  <CardTitle>{orden.empresa}</CardTitle>
+                  <CardDescription>
+                    Horario de entrega: {orden.horarioEntrega}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="grid gap-2">
                   <p>
-                    <span className="font-semibold">Monto a cobrar: </span>$
-                    {orden.montoACobrar}
+                    <span className="font-semibold">Dirección de entrega: </span>
+                    {orden.direccionEntrega}
                   </p>
-                )}
-                {orden.notas && (
-                  <p>
-                    <span className="font-semibold">Notas: </span>
-                    {orden.notas}
+                  {orden.montoACobrar && (
+                    <p>
+                      <span className="font-semibold">Monto a cobrar: </span>$
+                      {orden.montoACobrar}
+                    </p>
+                  )}
+                  {orden.notas && (
+                    <p>
+                      <span className="font-semibold">Notas: </span>
+                      {orden.notas}
+                    </p>
+                  )}
+                </CardContent>
+                <CardFooter className="flex justify-end">
+                  <p className="text-lg font-bold">
+                    Costo del envío: ${orden.costoEnvio}
                   </p>
-                )}
-              </CardContent>
-              <CardFooter className="flex justify-end">
-                <p className="text-lg font-bold">
-                  Costo del envío: ${orden.costoEnvio}
-                </p>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      )}
+                </CardFooter>
+              </Card>
+            ))}
+          </>
+        ) : (
+          <p className="pt-4 text-center text-muted-foreground">
+            Aún no se han procesado órdenes. Pega el texto en el área de arriba y presiona el botón.
+          </p>
+        )}
+      </div>
     </div>
   );
 }

@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 import { procesarOrdenesDesdeTexto } from "@/app/acciones";
 import type { Orden } from "@/tipos/orden";
 
@@ -18,11 +19,35 @@ export function FormularioOrden() {
   const [isPending, startTransition] = useTransition();
   const [textoOrdenes, setTextoOrdenes] = useState("");
   const [ordenes, setOrdenes] = useState<Orden[]>([]);
+  const { toast } = useToast();
 
   const procesarOrdenes = () => {
     startTransition(async () => {
-      const nuevasOrdenes = await procesarOrdenesDesdeTexto(textoOrdenes);
-      setOrdenes(nuevasOrdenes);
+      const respuesta = await procesarOrdenesDesdeTexto(textoOrdenes);
+
+      if (!respuesta.exito) {
+        setOrdenes([]);
+        toast({
+          title: "Error al procesar",
+          description: respuesta.error,
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      setOrdenes(respuesta.datos);
+
+      if (respuesta.datos.length === 0) {
+        toast({
+          title: "Sin resultados",
+          description: "No se encontraron órdenes válidas en el texto.",
+        });
+      } else {
+        toast({
+          title: "¡Éxito!",
+          description: `Se han procesado ${respuesta.datos.length} órdenes correctamente.`,
+        });
+      }
     });
   };
 
@@ -35,7 +60,7 @@ export function FormularioOrden() {
         rows={10}
         disabled={isPending}
       />
-      <Button onClick={procesarOrdenes} disabled={isPending}>
+      <Button onClick={procesarOrdenes} disabled={isPending || !textoOrdenes.trim()}>
         {isPending ? "Procesando..." : "Procesar Órdenes"}
       </Button>
 

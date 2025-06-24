@@ -17,7 +17,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import type { Orden } from "@/tipos/orden"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 interface TablaOrdenesProps {
   datos: Orden[]
@@ -26,11 +33,11 @@ interface TablaOrdenesProps {
 export const columns: ColumnDef<Orden>[] = [
   {
     accessorKey: "numeroOrden",
-    header: "Order Number",
+    header: "Order #",
   },
   {
     accessorKey: "nombreClienteEntrega",
-    header: "Nombre Cliente Entrega",
+    header: "Cliente Entrega",
   },
   {
     accessorKey: "destino",
@@ -43,19 +50,19 @@ export const columns: ColumnDef<Orden>[] = [
   },
   {
     accessorKey: "horaDesde",
-    header: "HoraDesde",
+    header: "Desde",
   },
   {
     accessorKey: "horaHasta",
-    header: "HoraHasta",
+    header: "Hasta",
   },
   {
     accessorKey: "nombreClienteRetiro",
-    header: "Nombre Cliente Retiro",
+    header: "Cliente Retiro",
   },
   {
     accessorKey: "direccionRetiro",
-    header: "Pick up address:",
+    header: "Dirección Retiro",
   },
   {
     accessorKey: "total",
@@ -64,7 +71,7 @@ export const columns: ColumnDef<Orden>[] = [
   },
   {
     accessorKey: "montoEnvio",
-    header: "MontoEnvio",
+    header: "Envío",
     cell: ({ row }) => `$${row.getValue("montoEnvio")}`,
   },
   {
@@ -74,21 +81,77 @@ export const columns: ColumnDef<Orden>[] = [
 ]
 
 export function TablaOrdenes({ datos }: TablaOrdenesProps) {
+  const isMobile = useIsMobile()
   const table = useReactTable({
     data: datos,
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
 
+  if (isMobile === undefined) {
+      return (
+          <div className="flex items-center justify-center h-full min-h-[400px] rounded-lg border border-dashed shadow-sm bg-card">
+              <p className="text-muted-foreground">Cargando vista...</p>
+          </div>
+      );
+  }
+
+  if (isMobile) {
+    return (
+      <div className="space-y-4">
+        {datos.map((orden) => (
+          <Card key={orden.numeroOrden} className="bg-card">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                {orden.nombreClienteEntrega}
+              </CardTitle>
+              <span className="text-xs text-muted-foreground">#{orden.numeroOrden}</span>
+            </CardHeader>
+            <CardContent>
+              <div className="text-lg font-bold">{orden.destino.split(',')[0]}</div>
+              <p className="text-xs text-muted-foreground">
+                Retira: {orden.nombreClienteRetiro}
+              </p>
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <div className="flex flex-col space-y-1">
+                  <span className="text-xs text-muted-foreground">Horario</span>
+                  <span className="font-medium">{orden.horaDesde} - {orden.horaHasta}</span>
+                </div>
+                <div className="flex flex-col space-y-1">
+                  <span className="text-xs text-muted-foreground">Fecha</span>
+                  <span className="font-medium">{format(new Date(orden.fecha), "dd/MM/yyyy")}</span>
+                </div>
+                <div className="flex flex-col space-y-1">
+                  <span className="text-xs text-muted-foreground">Total a Cobrar</span>
+                  <span className="font-medium">${orden.total}</span>
+                </div>
+                <div className="flex flex-col space-y-1">
+                  <span className="text-xs text-muted-foreground">Costo Envío</span>
+                  <span className="font-medium">${orden.montoEnvio}</span>
+                </div>
+              </div>
+              {orden.aclaraciones && (
+                <div className="mt-4">
+                  <span className="text-xs text-muted-foreground">Aclaraciones</span>
+                  <p className="text-sm font-medium">{orden.aclaraciones}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    )
+  }
+
   return (
-    <div className="rounded-md border">
+    <div className="rounded-lg border bg-card">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="whitespace-nowrap">
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -107,9 +170,10 @@ export function TablaOrdenes({ datos }: TablaOrdenesProps) {
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
+                className="hover:bg-muted/50"
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="text-xs">
+                  <TableCell key={cell.id} className="p-2 text-xs">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}

@@ -1,4 +1,3 @@
-import prisma from '@/lib/prisma';
 import type { Repartidor } from '@/tipos/repartidor';
 import type { Orden } from '@/tipos/orden';
 import type { RepartoExtendido } from '@/tipos/reparto';
@@ -6,43 +5,26 @@ import { GestionRepartos } from '@/components/gestion-repartos';
 import { ListaRepartos } from '@/components/lista-repartos';
 import { Separator } from '@/components/ui/separator';
 
-async function getRepartidores(): Promise<Repartidor[]> {
-  return prisma.repartidor.findMany();
-}
+const mockRepartidores: Repartidor[] = [
+  { id: 1, nombre: 'Juan Perez' },
+  { id: 2, nombre: 'Ana Gomez' },
+];
 
-async function getOrdenesPendientes(): Promise<Orden[]> {
-  return prisma.orden.findMany({
-    where: {
-      estado: 'PENDIENTE',
-      repartoId: null,
-    },
-    orderBy: {
-      fecha: 'asc',
-    },
-  });
-}
+const mockOrdenesPendientes: Orden[] = [
+  { numeroOrden: 'ABC-1', destino: 'Calle Falsa 123, Mar del Plata, Provincia de Buenos Aires, Argentina', nombreClienteEntrega: 'Cliente 1', fecha: new Date(), horaDesde: '09:00:00', horaHasta: '12:00:00', nombreClienteRetiro: 'Tienda A', direccionRetiro: 'Av Siempre Viva 742, Mar del Plata, Provincia de Buenos Aires, Argentina', total: 1500, montoEnvio: 200, aclaraciones: 'Tocar timbre', estado: 'PENDIENTE' },
+  { numeroOrden: 'DEF-2', destino: 'Av Corrientes 345, Mar del Plata, Provincia de Buenos Aires, Argentina', nombreClienteEntrega: 'Cliente 2', fecha: new Date(), horaDesde: '14:00:00', horaHasta: '18:00:00', nombreClienteRetiro: 'Tienda B', direccionRetiro: 'Av de Mayo 567, Mar del Plata, Provincia de Buenos Aires, Argentina', total: 2500, montoEnvio: 250, aclaraciones: 'Entregar en recepción', estado: 'PENDIENTE' },
+];
 
-async function getRepartosActuales(): Promise<RepartoExtendido[]> {
-  const repartos = await prisma.reparto.findMany({
-    include: {
-      repartidor: true,
-      _count: {
-        select: { ordenes: true },
-      },
-    },
-    orderBy: {
-      fecha: 'desc',
-    },
-  });
-  return repartos as RepartoExtendido[];
-}
+const mockRepartosActuales: RepartoExtendido[] = [
+    { id: 'REPO-1', fecha: new Date(), repartidorId: 1, repartidor: { id: 1, nombre: 'Juan Perez' }, _count: { ordenes: 5 } },
+    { id: 'REPO-2', fecha: new Date(new Date().setDate(new Date().getDate() -1)), repartidorId: 2, repartidor: { id: 2, nombre: 'Ana Gomez' }, _count: { ordenes: 8 } },
+];
 
-export default async function RepartosPage() {
-  const [repartidores, ordenesPendientes, repartosActuales] = await Promise.all([
-    getRepartidores(),
-    getOrdenesPendientes(),
-    getRepartosActuales(),
-  ]);
+
+export default function RepartosPage() {
+  const repartidores = mockRepartidores;
+  const ordenesPendientes = mockOrdenesPendientes;
+  const repartosActuales = mockRepartosActuales;
 
   return (
     <div className="container mx-auto p-4 md:p-6 lg:p-8">

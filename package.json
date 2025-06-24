@@ -68,6 +68,11 @@
   },
   "trustedDependencies": [
     "@firebase/util",
-    "protobufjs"
+    "@prisma/client",
+    "@prisma/engines",
+    "esbuild",
+    "prisma",
+    "protobufjs",
+    "sharp"
   ]
 }

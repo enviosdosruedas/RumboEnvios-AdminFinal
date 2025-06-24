@@ -9,9 +9,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum EstadoOrden {
+  PENDIENTE
+  RETIRADO
+  EN_CAMINO
+  COMPLETADO
+  FALLIDO
+}
+
 model Orden {
-  id                   String   @id @default(cuid())
-  numeroOrden          String   @unique
+  id                   String      @id @default(cuid())
+  numeroOrden          String      @unique
   nombreClienteEntrega String
   destino              String
   fecha                DateTime
@@ -22,6 +30,8 @@ model Orden {
   total                Float
   montoEnvio           Float
   aclaraciones         String
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  estado               EstadoOrden @default(PENDIENTE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
